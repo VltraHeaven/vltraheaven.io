@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/VltraHeaven/vltraheaven.io/issues"
   },
-  "homepage": "https://github.com/VltraHeaven/vltraheaven.io#readme"
+  "homepage": "https://github.com/VltraHeaven/vltraheaven.io#readme",
+  "dependencies": {
+    "yarn": "^1.21.1"
+  }
 }
