@@ -1,10 +1,12 @@
 ---
 title: Down the Rabbit Hole - Applications Contained, Part 1
 cover: img/kirokaze-horus.gif
-description: A deep dive into AppImage, a portable Linux-disto agnostic packaging format; Part 1 of 2.
+description: Review of portable distro agnostic packaging formats featuring Appimage.
 date: 2019-08-29
 tags:
     - appimage
+    - flatpak
+    - snap
     - applications
     - linux
 categories:
@@ -36,12 +38,8 @@ This brings us to our final contestant, [AppImage](https://appimage.org/). Even 
 > LibreOffice-fresh.standard-x86_64.AppImage: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-Linux-x86-64.so.2, for GNU/Linux 2.6.18, stripped
 > ``` 
 
-But wait, there's more. Remember how we spoke earlier about Flatpak, Apparmor and their intermittently used sandbox implementations. Welp, AppImage has no integrated default sandboxing implementations. This being the case, you as a user are free to _choose_ (**gasp!**) which sandboxing implementation you want to use instead of being locked into a vendor default. That opens the doors for using [nsjail](https://google.github.io/nsjail/) or [firejail](https://github.com/netblue30/firejail) in conjunction with bubblewrap and/or apparmor for added security. 
+I previously mentioned Flatpak and Snap's intermittently used sandbox implementations. In AppImage's case there are no integrated default sandboxing implementations. While running Appimages without a sandboxing implementation could be a risky venture, having the freedom to _choose_  which sandboxing implementation to use and the control to customize whitelist/blacklist profiles far outweigh the convenience that comes with having a preset default. That opens the doors for using [nsjail](https://google.github.io/nsjail/) or [firejail](https://github.com/netblue30/firejail) in conjunction with mandatory access control systems like SELinux or AppArmor for added security. 
 
 A covert benefit to having an invasive daemon like `snapd` playing Jeff Bezos with your system resources is being able to easily launch an application from your desktop environment's shell. For that we have [`appimaged`](https://github.com/AppImage/appimaged/), a daemon (itself in the form of an AppImage) programmed to monitor directories in your path for AppImages and register them with the system upon discovery. This daemon can also be run with `firejail` and `apparmor` confinement and in the context of a user instead of as root; then, to top it off we can add in `AppImageUpdate` for easy updates to compatible AppImages. Pretty neato.
-
-> Disclaimer: It just occurred to me that a skeptic like myself could easily misconstrue my intentions for being that of a shill. I don't even think the AppImage developers (which is one dude and a few contributors on Github) employs shills. I wish they did though, I gots bills to pay.
-
-While I can say with absolute honesty AppImage's approach to distribution-agnostic software packaging is the cleanest of its class, there are a few caveats to packaging an application with this format. In Part 2 we'll get to the nitty-gritty of packaging an application with AppImage and (for extra credit) creating some sandboxing profiles with Firejail and Apparmor.
 
 *-Heaven*
