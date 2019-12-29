@@ -1,24 +1,31 @@
 baseurl = "/"
 languageCode = "en-us"
-theme = ["hello-friend", "hugo-loremipsum"]
+theme = ["terminal", "hugo-loremipsum"]
 paginate = 5
 
 [params]
   # dir name of your blog content (default is `content/posts`)
   contentTypeName = "posts"
   # "light" or "dark"
-  defaultTheme = "dark"
+  themeColor = "pink"
   # if you set this to 0, only submenu trigger will be visible
   showMenuItems = 2
-  # Show reading time in minutes for posts
-  showReadingTime = false
+  # show selector to switch language
+  showLanguageSelector = false
+  # set theme to full screen width
+  fullWidthTheme = false
+  # center theme with default width
+  centerTheme = false
+  # set a custom favicon (default is a `themeColor` square)
+  # favicon = "favicon.ico"
 
 [languages]
   [languages.en]
-    title = "vltraheaven.io"
+   languageName = "English" 
+   title = "【VLTRAHEAVEN】"
     subtitle = "DevOps // GameDev // Emulation"
     keywords = ["devops", "game development", "linux", "emulation", "MAME", "docker", "kubernetes", "secdevops"]
-    copyright = "【VLTRAHEAVEN】©2019"
+    copyright = ""
     menuMore = "Show more"
     writtenBy = "Written by"
     readMore = "Read more"
@@ -30,7 +37,7 @@ paginate = 5
     dateFormatList = "2006-01-02"
 
     [languages.en.params.logo]
-    logoText = "vltraheaven.io"
+    logoText = "【VLTRAHEAVEN】"
     logoHomeLink = "/"
     # or
     #
