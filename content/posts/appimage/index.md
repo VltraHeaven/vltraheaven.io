@@ -1,7 +1,7 @@
 ---
 title: Down the Rabbit Hole - Applications Contained
 cover: img/kirokaze-horus.gif
-description: Review of portable distro agnostic packaging formats.
+description: Review of portable, distro-agnostic packaging formats.
 date: 2019-08-29
 tags:
     - appimage
