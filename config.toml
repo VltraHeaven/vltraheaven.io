@@ -15,10 +15,10 @@ paginate = 5
 
 [languages]
   [languages.en]
-    title = "Hello Friend"
-    subtitle = "A simple theme for Hugo"
-    keywords = ""
-    copyright = ""
+    title = "vltraheaven.io"
+    subtitle = "DevOps // GameDev // Emulation"
+    keywords = ["devops", "game development", "linux", "emulation", "MAME", "docker", "kubernetes", "secdevops"]
+    copyright = "【VLTRAHEAVEN】©2019"
     menuMore = "Show more"
     writtenBy = "Written by"
     readMore = "Read more"
@@ -30,12 +30,12 @@ paginate = 5
     dateFormatList = "2006-01-02"
 
     [languages.en.params.logo]
-      logoText = "hello friend"
-      logoHomeLink = "/"
+    logoText = "vltraheaven.io"
+    logoHomeLink = "/"
     # or
     #
-    # path = "/img/your-example-logo.svg"
-    # alt = "Your example logo alt text"
+    # path = "/img/title.gif"
+    #alt = "VltraHeaven"
 
     [languages.en.menu]
       [[languages.en.menu.main]]
