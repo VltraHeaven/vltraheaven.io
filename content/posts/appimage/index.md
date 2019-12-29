@@ -1,17 +1,14 @@
 ---
 title: Down the Rabbit Hole - Applications Contained, Part 1
-lang: en-US
-display: home
-image: /images/kirokaze-horus.gif
+cover: img/kirokaze-horus.gif
 description: A deep dive into AppImage, a portable Linux-disto agnostic packaging format; Part 1 of 2.
 date: 2019-08-29
 tags:
-    - containers
-    - sandbox
     - appimage
+    - applications
     - linux
 categories:
-    - hacks
+    - devops
 ---
 ### Background Image by [Kirokaze](https://www.deviantart.com/kirokaze)
 
