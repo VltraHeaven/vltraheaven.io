@@ -1,5 +1,5 @@
 ---
-title: Down the Rabbit Hole - Applications Contained, Part 1
+title: Down the Rabbit Hole - Applications Contained
 cover: img/kirokaze-horus.gif
 description: Review of portable distro agnostic packaging formats featuring Appimage.
 date: 2019-08-29
