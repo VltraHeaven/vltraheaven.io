@@ -1,7 +1,7 @@
 {
   "name": "vltraheaven.io",
   "version": "1.0.0",
-  "description": "Repo containing files for vltraheaven.io, created using Hugo",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/VltraHeaven/vltraheaven.io.git"
   },
-  "author": "Julio Hawthorne",
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/VltraHeaven/vltraheaven.io/issues"
