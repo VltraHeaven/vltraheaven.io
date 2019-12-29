@@ -2,10 +2,18 @@
 title: Down the Rabbit Hole - Kata Containers
 lang: en-US
 display: home
-image: /static/img/nihon_warning.jpg
+cover: img/nihon_warning.jpg
 description: Deep dive installation with Kata Containers
 date: 2019-07-31
+tags:
+    - containers
+    - virtualization
+    - linux
+categories:
+    - devops
+
 ---
+
 ### Source: [Kata Containers](https://katacontainers.io) | [@Github](https://github.com/kata-containers)
 
 
