@@ -9,6 +9,7 @@
 <body class="">
 {{ $container := cond $.Site.Params.FullWidthTheme "container full" (cond $.Site.Params.CenterTheme "container center" "container") }}
 
+<div class="crt">
 <div class="{{- $container -}}">
 
   {{ partial "header.html" . }}
@@ -22,6 +23,6 @@
     {{ partial "footer.html" . }}
   {{ end }}
 </div>
-
+</div>
 </body>
 </html>
