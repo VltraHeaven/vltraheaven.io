@@ -1,6 +1,6 @@
 baseurl = "/"
 languageCode = "en-us"
-theme = ["terminal", "hugo-loremipsum"]
+theme = ["hugo-loremipsum"]
 paginate = 5
 
 [params]
@@ -37,7 +37,7 @@ paginate = 5
     dateFormatList = "2006-01-02"
 
     [languages.en.params.logo]
-    logoText = "【VLTRAHEAVEN】"
+    logoText = "$ VLTRAHEAVEN_"
     logoHomeLink = "/"
     # or
     #
