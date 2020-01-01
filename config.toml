@@ -6,10 +6,10 @@ paginate = 5
 [params]
   # dir name of your blog content (default is `content/posts`)
   contentTypeName = "posts"
-  # "light" or "dark"
+  # set theme color
   themeColor = "pink"
   # if you set this to 0, only submenu trigger will be visible
-  showMenuItems = 2
+  showMenuItems = 4
   # show selector to switch language
   showLanguageSelector = false
   # set theme to full screen width
@@ -45,11 +45,20 @@ paginate = 5
     #alt = "VltraHeaven"
 
     [languages.en.menu]
-    #  [[languages.en.menu.main]]
-    #    identifier = "about"
-    #    name = "About"
-    #    url = "/about"
-    #  [[languages.en.menu.main]]
-    #    identifier = "showcase"
-    #    name = "Showcase"
-    #    url = "/showcase"
+      [[languages.en.menu.main]]
+        identifier = "devOps"
+        name = "devOps"
+        url = "/posts/devops"
+      [[languages.en.menu.main]]
+        identifier = "gameDev"
+        name = "gameDev"
+        url = "/posts/gamedev"
+      [[languages.en.menu.main]]
+        identifier = "emulation"
+        name = "emulation"
+        url = "/posts/emulation"
+      [[languages.en.menu.main]]
+        identifier = "about"
+        name = "about"
+        url = "/about"
+
