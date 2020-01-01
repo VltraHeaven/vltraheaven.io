@@ -22,7 +22,6 @@ categories:
 - Earning my stripes in DevOps and Software Development
 - Finding creative ways to run my favorite classic video games on anything that can run Linux (...so, essentially everything)
 - Going deep down the Kubernetes rabbit hole...
-- Figuring out how to leverage/break/secure (insert random devops/container technology here) 
 - Hanging with my pup ♥
 ---
 
