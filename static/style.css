@@ -177,6 +177,24 @@
 
 .logo-extended {
     color: #74f172;
+    padding-right: 2px;
+    padding-top: 6px;
+    padding-bottom: 5px;
+    border-right: solid 12px rgba(0,255,0,.75);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Animation */
+.type {
+    animation: animated-cursor 600ms steps(9,end) infinite;
+}
+
+/* cursor animations */
+
+@keyframes animated-cursor{
+    from{border-right-color: rgba(0,255,0,.75);}
+    to{border-right-color: transparent;}
 }
 
 body {
