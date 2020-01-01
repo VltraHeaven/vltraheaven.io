@@ -32,7 +32,7 @@ The beginning of this year saw me riding the [Flatpak](https://www.flatpak.org/)
 ## Enter AppImage
 
 This brings us to our final contestant, [AppImage](https://appimage.org/). Even though AppImage received the proverbial [Linus Torvalds](https://www.britannica.com/biography/Linus-Torvalds) seal of approval, the platform seems heavily slept on by major software developers. By far the most attractive feature of the AppImage platform is the single-binary approach it takes. In comparison to Flatpak which installs multiple application files in `/var/lib/flatpak` for system-wide installs and `$HOME/.local/share/flatpak/app/` for user installations and Snap which does the same in `/snap` for system-wide, `$HOME/snap` for local installations and creates symlinks in `/usr/bin/snap` (clutter, clutter, clutter!), Flatpak just gives you a single binary that you can `chmod a+x`, throw in a directory that lies on your `PATH` (`/usr/local/bin` for system-wide or `~/.local/bin` for user installs) and execute directly from the terminal. 
-> Running `file` against an appimage gives results for your run-of-the-mill 64-bit ELF.
+Running `file` against an appimage gives results for your run-of-the-mill 64-bit ELF.
 > ```bash
 > $ ~/.l/bin file LibreOffice-fresh.standard-x86_64.AppImage
 > LibreOffice-fresh.standard-x86_64.AppImage: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-Linux-x86-64.so.2, for GNU/Linux 2.6.18, stripped
