@@ -3,7 +3,7 @@ title: Down the Rabbit Hole - Kata Containers
 lang: en-US
 display: home
 cover: img/nihon_warning.jpg
-description: Deep dive installation with Kata Containers
+description: An in-depth guide to installing and configuring Kata Containers from source.
 date: 2019-07-31
 tags:
     - containers
