@@ -197,7 +197,10 @@
     to{border-right-color: transparent;}
 }
 
+.content-text {
+    color: #74f172;
+}
+
 body {
     font-family:"TopazPlus", "Lucida Console", monospace, Monaco; !important;
-
 }
