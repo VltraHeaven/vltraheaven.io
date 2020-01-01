@@ -27,17 +27,17 @@
   <img src="{{ . | absURL }}" class="post-cover" />
   {{ end }}
 
-  <div class="post-content">
+  <div class="post-content content-text">
     {{ .Content }}
   </div>
   {{ if or .NextInSection .PrevInSection }}
   <div class="pagination">
-    <div class="pagination__title">
+    <div class="pagination__title content-text">
       <span
         class="pagination__title-h">{{ $.Site.Params.ReadOtherPosts }}</span>
       <hr />
     </div>
-    <div class="pagination__buttons">
+    <div class="pagination__buttons content-text">
       {{ if .NextInSection }}
       <span class="button previous">
         <a href="{{ .NextInSection.Permalink }}">
