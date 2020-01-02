@@ -9,12 +9,12 @@ tags:
     - containers
     - virtualization
     - linux
-categories:
+keywords:
     - devops
-
+---
 ---
 
-### Source: [Kata Containers](https://katacontainers.io) | [@Github](https://github.com/kata-containers)
+Source: [Kata Containers](https://katacontainers.io) | [@Github](https://github.com/kata-containers)
 
 
 It's not uncommon for me on any given day to get completely pulled in by some emerging (or legacy) alternative technology. My rabbit hole *du jour* ended up being Kata Containers. The original objective was only to make a few settings modifications, which quickly turned into me tanking my entire install.

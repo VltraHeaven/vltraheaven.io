@@ -9,10 +9,12 @@ tags:
     - snap
     - applications
     - linux
-categories:
+keywords:
     - devops
 ---
-### Background Image by [Kirokaze](https://www.deviantart.com/kirokaze)
+---
+Cover image created by [Kirokaze](https://www.deviantart.com/kirokaze)
+
 
 I'm very..._passionate_ about maintaining a clean OS environment. I can't count the number of times I've installed a desktop application only for it to use up an inordinate amount of resources, clutter up my filesystem by writing files **everywhere** or break the dependencies of other applications. I've even (misguidedly) gone as far as creating VMWare virtual machines for different workloads to emulate workspace segmentation and mitigate these issues. Kind of like a janky [Qubes OS](https://www.qubes-os.org/) [minus the hardened security profile](https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=vmware+code+execution).  Fortunately, several developers felt the same way and developed platforms that lead the way for distribution-agnostic software packaging, namely [Flatpak](https://www.flatpak.org/), [Snap](https://snapcraft.io/) and [AppImage](https://appimage.org/). While the primary goal of these projects is to provide universal software packaging for all Linux distributions, the features I gush about are the security sandboxing profiles and clean installation methods that become a reality using these three platforms.
 
