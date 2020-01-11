@@ -50,11 +50,11 @@ Chances are this setting was automatically set if you installed `go` from your p
 ## Installing the `kata-runtime`, shim and `kata-proxy`
 ---
 
-Next we'll be pulling the `kata-runtime` sources from github using the `go get` command,
+Next we'll be pulling the `kata-runtime` sources from github using the `go get` command.
 >```sh
 >$ go get -d -u github.com/kata-containers/runtime
 >```
-then changing directories to the source code's directory and compiling using `make`.
+Now, you may get an error telling you `...no Go files in...', but you can ignore that. Move to the source code's directory and compile the `kata-runtime` using `make`.
 >```sh
 >$ cd $GOPATH/src/github.com/kata-containers/runtime
 >$ make && sudo -E PATH=$PATH make install
