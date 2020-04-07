@@ -9,7 +9,7 @@ paginate = 5
   # set theme color
   themeColor = "pink"
   # if you set this to 0, only submenu trigger will be visible
-  showMenuItems = 4
+  showMenuItems = 5
   # show selector to switch language
   showLanguageSelector = false
   # set theme to full screen width
@@ -50,9 +50,9 @@ paginate = 5
         name = "devOps"
         url = "/posts/devops"
       [[languages.en.menu.main]]
-        identifier = "gameDev"
-        name = "gameDev"
-        url = "/posts/gamedev"
+        identifier = "infoSec"
+        name = "infoSec"
+        url = "/posts/infosec"
       [[languages.en.menu.main]]
         identifier = "emulation"
         name = "emulation"
@@ -61,4 +61,8 @@ paginate = 5
         identifier = "about"
         name = "about"
         url = "/about"
+       [[languages.en.menu.main]]
+        identifier = "linux"
+        name = "linux"
+        url = "/posts/linux"
 
