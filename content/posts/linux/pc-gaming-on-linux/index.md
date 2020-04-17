@@ -39,7 +39,7 @@ Last but not least, we will be spending a fair share of time entering commands i
 ## Linux Native Gaming
 ---
 
-The simplest way to experience gaming on the linux platform is without a doubt through the native Steam client. Fortunately, the nature of Linux makes installation trivial. For the uninitiated, most Linux distros takes advantage of [Package Managers](https://en.wikipedia.org/wiki/Package_manager) that manage the installation, upgrades, removal and configuration for software packages. If you're thinking this sounds a lot like the App Store, it should, since every app store was inspired by (and by extension is itself) the concept of a package manager.
+The simplest way to experience gaming on the linux platform is without a doubt through the native Steam client. Fortunately, the nature of Linux makes installation trivial. For the uninitiated, most Linux distros takes advantage of [Package Managers](https://en.wikipedia.org/wiki/Package_manager) that manage the installation, upgrades, removal and configuration for software packages. If you're thinking this sounds a lot like the App Store, it should, since every app store was inspired by the concept of a package manager.
 
 On Pop!_OS & Ubuntu derivatives we use `Aptitude` for package management.
 ```sh
