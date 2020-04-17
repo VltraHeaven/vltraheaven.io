@@ -1,3 +1,7 @@
 .idea
 themes/terminal/node_modules
 public/*
+content/posts/devops/work_in_progress
+content/posts/infosec/work_in_progress
+content/posts/linux/work_in_progress
+content/posts/emulation/work_in_progress
