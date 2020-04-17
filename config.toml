@@ -23,8 +23,8 @@ paginate = 5
   [languages.en]
    languageName = "English" 
    title = "【vltraheaven】"
-    subtitle = "DevOps // GameDev // Emulation"
-    keywords = ["devops", "game development", "linux", "emulation", "MAME", "docker", "kubernetes", "secdevops"]
+    subtitle = "DevOps // Linux // InfoSec // Emulation"
+    keywords = ["devops", "game development", "linux", "emulation", "MAME", "docker", "kubernetes", "infosec", "secdevops"]
     copyright = "【vltraheaven】 © 2020"
     menuMore = "Show more"
     writtenBy = "Written by"
