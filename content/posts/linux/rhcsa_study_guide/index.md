@@ -1,5 +1,5 @@
 +++
-title = "Linux Mastery - RHCSA Study Guide & Exam Prep"
+title = "The Road to Mastery - RHCSA Study Guide & Exam Prep"
 date = "2020-04-06"
 author = "Heaven"
 cover = "img/terminal.gif"
