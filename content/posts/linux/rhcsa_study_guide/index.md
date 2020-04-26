@@ -26,3 +26,29 @@ After spending the better part of the last two years slowly installing linux on 
 
 ## Lesson 1: Installing Red Hat Enterprise Linux Server
 ---
+
+#### Understanding Server Requirements
+ + Minimum 2GiB Ram
+ + 20GiB Disk Space
+ + Wired Network Connection
+ + Optical Drive or Installation ISO
+ 
+ #### Performing a Basic Installation
+ + Set Keyboard Mapping
+ + Set Language Support
+ + Set Timezone
+ + Partition Disks
+ + Optional: Specify Software Package Selection
+ + Set Network & Hostname
+ + Set Root Password
+ + Create User Accounts
+ + Agree to Licensing Agreement
+ > Note: Items highlighted in RED are installation issue notifications
+
+#### Installing with Custom Partitioning
+
+#### Logging into the Server
+
+#### Deploying RHEL in the Cloud
+
+#### Lesson 1 Lab
