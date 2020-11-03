@@ -11,17 +11,15 @@ categories:
 ## Heaven
 ------
 
-- Software Development/DevOps
-- [OWASP Amass](https://owasp-amass.com/) Contributor
-- Beatsmith
-- Retro Gaming/Pixel-Art Aficionado
+- Linux/Unix enthusiast
+- Musician
+- Retro Gaming & Pixel-Art
 
 ### On any given day you can find me...
 
-- Chucking tunes out of Ableton Live
-- Earning my stripes in DevOps and Software Development
-- Finding creative ways to run my favorite classic video games on anything that can run Linux (...so, essentially everything)
-- Going deep down the Kubernetes rabbit hole...
+- Tinkering with a *nix*-based operating system
+- Learning golang one day at a time
+- Finding creative ways to run my favorite classic video games on anything that can run Linux
 - Hanging with my pup ♥
 ---
 
