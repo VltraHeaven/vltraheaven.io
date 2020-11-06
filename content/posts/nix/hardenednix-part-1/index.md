@@ -5,7 +5,7 @@ author = "Heaven"
 cover = "img/terminal.gif"
 tags = ["nix"]
 keywords = ["bsd", "linux", "tutorials"]
-description = "A primer on the focueses and objectives of the HardenedNix series"
+description = "A primer on the objectives of the HardenedNix series"
 showFullContent = false
 +++
 
