@@ -13,7 +13,24 @@ Cover image created by Unknown
 
 ---
 
-## 
+## Intro
+
+---
+
+## Wait, what about OpenBSD?
+
+---
+
+## OK, define "Hardened"...
+
+---
+
+## Digging into Kernel-based Exploit Mitigations
+
+---
+
+## Series Objectives
+
 ---
 
 - Heaven_
