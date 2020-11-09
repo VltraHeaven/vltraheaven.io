@@ -1,11 +1,11 @@
 +++
-title = "The HardenedBSD Series, Part I: Installation"
-date = "2020-11-12"
+title = "The HardenedBSD Series, Part III: Ports"
+date = "2020-11-13"
 author = "Heaven"
 cover = "img/terminal.gif"
 tags = ["nix", "freebsd", "bsd", "hardenedbsd"]
-keywords = ["bsd", "tutorials"]
-description = "A guide on setting up a HardenedBSD workstation, Part I"
+keywords = ["bsd", "linux", "tutorials"]
+description = "A guide on setting up a HardenedBSD workstation, Part III"
 showFullContent = false
 +++
 
