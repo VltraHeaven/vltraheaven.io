@@ -1,6 +1,6 @@
 +++
 title = "The HardenedBSD Series, Part III: Ports"
-date = "2020-11-13"
+date = "2020-11-23"
 author = "Heaven"
 cover = "img/terminal.gif"
 tags = ["nix", "freebsd", "bsd", "hardenedbsd"]

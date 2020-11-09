@@ -1,6 +1,6 @@
 +++
 title = "The HardenedBSD Series, Part II: The Desktop"
-date = "2020-11-06"
+date = "2020-11-16"
 author = "Heaven"
 cover = "img/terminal.gif"
 tags = ["nix", "freebsd", "bsd", "hardenedbsd"]
