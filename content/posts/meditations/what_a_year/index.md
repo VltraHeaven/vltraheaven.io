@@ -33,7 +33,7 @@ Until recently, reading that line made me wish Friedrich Nietzsche was alive tod
 
 The crux of it all has hinged on how I've inadvertently defined wealth, and up to this point it's been intelligence above all. Now, I'm not so sure. I don't even think wealth is a value that can be externally quantified. After hammering myself with circling thoughts of inadequacy while comparing my amateur github projects against the library of some '1-million-X' developer's profile, or the staggering pedigree of a 20-something computer science grad as a 30-something college dropout, I realized that even if I'd achieved all those things, it'd change nothing. I'd figure out how to distill away all the positives and focus on the empty space.
 
-I think being of wealth is based on one's individual perspective, and not on assets that can be given or earned. Whether I adopt that perspective is by choice, and no amount of titles, accolades, self-affirming mantras, or achievements will it include it as a feature. It's in those pernicious moments where I find myself staring down into the gaping chasms of my life, asking myself, "Where did I go so wrong.." where I choose. Hell, maybe that choice exists in every moment. Both the good and the bad are at least moments to **be**, with the alternative being nothing at all.
+I think being of wealth is based on one's individual perspective, and not on assets that can be given or earned. Whether I adopt that perspective is by choice, and no amount of titles, accolades, self-affirming mantras, or achievements will include it as a feature. It's in those pernicious moments where I find myself staring down into the gaping chasms of my life, asking myself, "Where did I go so wrong.." where I choose. Hell, maybe that choice exists in every moment. Both the good and the bad are at least moments to **be**, with the alternative being nothing at all.
 
 Granted, I could be wrong.
 
@@ -49,7 +49,7 @@ From here on out, a lot of HardenedBSD and Gentoo experiments are on the menu, l
 
 I'm fairly certain this site won't be much of a 'professional' blog moving foward, though I'm sure it was half-past impossible for anyone to take the dystopian-future, pixel art theming seriously. I doubt the five people who accidentally stumble over it will mind. Plus, it's far more fufilling to just run as a platform for creative expression while in indefinite, self-imposed exile from social media.
 
-Past that, anything else the future may or may not bring is just icing.
+Past that, anything else the future may or may not hold is just icing.
 
 
 - Heaven_
