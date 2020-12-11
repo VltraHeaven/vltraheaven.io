@@ -39,6 +39,10 @@ Taints: A property of pods that repels them from deploying on a set of nodes.
 
 Tolerations: A property of pods that allows, but does not require, them to schedule onto a set of nodes that have a matching taint applied.
 
+Predicates: A Method the kube-scheduler uses to remove worker nodes from the selection of available worker nodes.
+
+Priorities: A series of characteristics the kube-scheduler uses to choose the best worker node(s) to host a pod.
+
 > Additional annotations can be made to the metadata that can be utilized by third-party agents or tools
 
 Multi-tenancy: Allowing several different users or groups to share a cluster.
@@ -55,13 +59,13 @@ Network Policies: Allows a firewall within the cluster. Ingress/Egress traffic c
 
 Master Node: Runs various server and manager processes for the cluster.
 
-> kube-apiserver: Central server that handles all internal and external calls through a cluster. All actions are accepted and validated by this agent, and is the only agent with permissions to connect to etcd. Each API call goes through three steps: authentication, authorization and several admission contrillers.
+> kube-apiserver: The server that acts as the central nervous system of a cluster and that handles all internal and external calls through a cluster. All actions are accepted and validated by this agent, and is the only agent with permissions to connect to etcd. Each API call goes through three steps: authentication, authorization and several admission contrillers.
 
 > kube-scheduler: Algorithmically determines which node will host a pod. Views available resources to bind, and then attempts to deploy a pod based on availability and success. Custom schedulers can be used instead and pods can be bound to specific nodes. First, the quota restrictions are evaluated to determine of a pod can be deployed on a particular node. Next, the taints, tolerations and labels are evaluated to determine the appropriate node placement of a pod.
 
 > etcd: A database that stores the state of a cluster, networking attributes and other persistent information in a b+tree key-value store. Values are always appended to the end of an entry and prevous entries are marked for future deletion by a compaction process. Requests are routed through through the kube-apiserver to etcd synchronously. An initial request would update etd and a second request would trigger the kube-apiserver to respond with a 409 error due to not having the same version number. A client would need to expect the possibility of this behavior and act upon the denial to update.
 
-> kube-controller-manager: A core control loop daemon that interacts with the kube-apiserver to determine the state of the cluster. The manager will contact the necessary controller to correct any discrepancies in the state of the cluster.
+> kube-controller-manager: The brain of a kubernetes cluster. A core control loop daemon that interacts with the kube-apiserver to determine the state of the cluster. The manager will contact the necessary controller to correct any discrepancies in the state of the cluster.
 
 > cloud-controller-manager: Interacts with agents outside of the cloud. Handles tasks once handled by the kube-controller-manager and allows faster changes without altering the core kubernetes control process. Each kubelet must use the `--cloud-provider-external` settings passed to the binary.
 
@@ -83,3 +87,14 @@ Services: A microservice that handles a particular bit of traffic, such as a sin
 
 > set-based (selector): Allows services to identify which objects to connect based of a set of values. The use of `status notin (dev, test, maint)` would select resources with the key of `status` which did not have a value of `dev, test,` nor `maint`. 
 
+Controllers: Also known as watch-loops or operators. They query the current spec of a pod, compare it against the spec and execute code dependent on the differences. Several contrillers ship with kubernetes, and it's possible to create one's own. As long as the deltas are not of the type *Deleted*, the logic of the controller is used to create or modify some object until it matches the spec. The `endpoints`, `namespace`, and `serviuceaccunts` controllers manage the appropriately named resources for Pods.
+
+Pause Container: A container initalized within a pod before all other containers that is responsible for obtaining an IP address for the pod, then sharing it's namespaces with the pods defined in the PodSpec. Can be inspected using the `ps` command. e.g. `sudo docker ps | grep -i pause`. 
+
+[Container Network Interface (CNI) Specification](https://github.com/containernetworking/cni): A specification with associated libraries for writing plugins used to configure container networking and remove allocated resources when containers are deleted. It provides a common interface between various networking solutions and container runtimes. Since the CNI spec is language-agnostic, there are several plugins for a range of network solutions.
+
+Software Defined Network Overlays:
+> [Weave](https://weave.works)
+> [Flannel](https://github.com/coreos/flannel)
+> [Calico](https://projectcalico.org)
+> [Romana](https://romana.io)
