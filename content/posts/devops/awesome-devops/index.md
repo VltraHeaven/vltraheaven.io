@@ -6,7 +6,7 @@ cover = "img/empire.gif"
 tags = ["devops", "awesomelist"]
 keywords = ["devops", "education", "linux", "kubernetes"]
 description = "Reference list of common DevOps tools and terminology."
-showFullContent = true 
+showFullContent = false 
 +++
 
 ## Terminology
