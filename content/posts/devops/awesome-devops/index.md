@@ -86,7 +86,6 @@ showFullContent = false
 ## CI/CD
 
 ---
-- Azure DevOps
 - Jenkins
 - Buildbot
 - Drone
