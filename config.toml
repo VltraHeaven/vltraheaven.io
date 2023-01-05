@@ -1,6 +1,9 @@
 baseURL = 'https://vltraheaven.io/'
 languageCode = 'en-us'
 title = 'vltraheaven.io'
+
+theme = ['pico']
+
 [module]
 [[module.imports]]
   path = 'github.com/negrel/hugo-theme-pico'

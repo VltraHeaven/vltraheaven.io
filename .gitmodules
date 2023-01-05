@@ -1,10 +1,4 @@
-[submodule "themes/hugo-loremipsum"]
-	path = themes/hugo-loremipsum
-    url = https://github.com/martignoni/hugo-loremipsum.git
-
- [submodule "themes/terminal"]
-    path = themes/terminal
-    url = https://github.com/panr/hugo-theme-terminal.git
 [submodule "themes/pico"]
 	path = themes/pico
 	url = https://github.com/negrel/hugo-theme-pico.git
+
