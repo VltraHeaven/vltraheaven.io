@@ -17,8 +17,9 @@
   },
   "homepage": "https://github.com/VltraHeaven/vltraheaven.io#readme",
   "dependencies": {
+    "postcss": "^8.4.20",
     "postcss-cli": "^10.1.0",
     "postcss-import": "^15.1.0",
-    "yarn": "^1.21.1"
+    "yarn": "^1.22.19"
   }
 }
