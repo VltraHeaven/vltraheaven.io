@@ -1,0 +1,67 @@
+baseurl = "/"
+languageCode = "en-us"
+theme = ["terminal"]
+paginate = 5
+
+[params]
+  # dir name of your blog content (default is `content/posts`)
+  contentTypeName = "posts"
+  # set theme color
+  themeColor = "pink"
+  # if you set this to 0, only submenu trigger will be visible
+  showMenuItems = 6 
+  # show selector to switch language
+  showLanguageSelector = false
+  # set theme to full screen width
+  fullWidthTheme = false
+  # center theme with default width
+  centerTheme = true
+  # set a custom favicon (default is a `themeColor` square)
+  favicon = "img/favicon.ico"
+
+[languages]
+  [languages.en]
+   languageName = "English" 
+   title = "【vltraheaven】"
+    subtitle = "The ramblings and ill-advised projects of an average computer nerd"
+    keywords = ["devops", "game development", "linux", "emulation", "MAME", "docker", "kubernetes", "infosec", "BSD", "secdevops"]
+    copyright = "【vltraheaven】 © 2020"
+    menuMore = "Show more"
+    writtenBy = "Written by"
+    readMore = "Read more"
+    readOtherPosts = "Read other posts"
+    newerPosts = "Newer posts"
+    olderPosts = "Older posts"
+    minuteReadingTime = "min read"
+    dateFormatSingle = "2006-01-02"
+    dateFormatList = "2006-01-02"
+
+    [languages.en.params.logo]
+    logoText = "$ ./vltraheaven.io"
+    logoHomeLink = "/"
+    # or
+    #
+    # path = "/img/title.gif"
+    #alt = "VltraHeaven"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "meditations"
+        name = "meditations"
+        url = "/posts/meditations"
+      [[languages.en.menu.main]]
+        identifier = "devOps"
+        name = "devOps"
+        url = "/posts/devops"
+      [[languages.en.menu.main]]
+        identifier = "emulation"
+        name = "emulation"
+        url = "/posts/emulation"
+       [[languages.en.menu.main]]
+        identifier = "*nix"
+        name = "nix"
+        url = "/posts/nix"
+      [[languages.en.menu.main]]
+        identifier = "about"
+        name = "about"
+        url = "/about"

@@ -1,0 +1,1 @@
+# github.com/negrel/hugo-theme-pico v0.0.0-20221225103042-94d6b5cd2308
