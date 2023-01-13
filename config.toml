@@ -49,6 +49,9 @@ category = "categories"
 tag = "tags"
 
 [languages.en]
+title = "vltraheaven.io"
+keywords = ["devops", "linux", "kubernetes"]
+copyright = "【vltraheaven】 © 2023"
 contentDir = 'content/en'
 languageCode = 'en'
 languageName = 'English'
