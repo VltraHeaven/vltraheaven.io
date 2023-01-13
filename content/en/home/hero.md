@@ -7,7 +7,7 @@ weight = 10
 # hidden = true
 
 # Hero image (optional). Enter filename of an image in the `static/` folder.
-hero_media = "/img/empire.gif"
+hero_media = "/img/headshot_1.jpg"
 
 # Buttons
 # Add as much button as you want
