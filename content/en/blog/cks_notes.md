@@ -101,7 +101,7 @@ spec:
   - Egress
 ```
 
-If a pod has more than one `NetworkPolicy`, the effect of all `NetworkPolicy` resources will be joined together and applied to the pod.
+If a pod has more than one matching `NetworkPolicy`, the effect of all rules in each `NetworkPolicy` will be joined together and applied to the pod.
 
 # GUI Elements
 
@@ -111,11 +111,11 @@ Kubernetes Dashboard Links:
 - [GitHub - kubernetes/dashboard: General-purpose web UI for Kubernetes clusters](https://github.com/kubernetes/dashboard)
 - [Kubernetes Dashboard Arguments](https://github.com/kubernetes/dashboard/blob/master/docs/common/dashboard-arguments.md)
 
-The Kubernetes Dasboard does not allow concurrent HTTP and HTTPS access.
+The Kubernetes Dashboard does not allow concurrent HTTP and HTTPS access.
 
 RBAC for the `kubernetes-dashboard` service account can be adjusted with `ClusterRole`/`Role` and `ClusterRoleBinding`/`RoleBinding` resources to manage what is visible in the Kubernetes Dashboard.
 
-Interesting Kubernets Dashboard Arguments:
+Interesting Kubernetes Dashboard Arguments:
 
 - `--authentication-mode`: Specify basic auth, RBAC, and Token based auth
 - `--enable-skip-login`: Skips login when accessing the Dashboard
