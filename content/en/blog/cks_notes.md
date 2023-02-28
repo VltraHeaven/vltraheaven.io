@@ -9,15 +9,15 @@ keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 +++
 
 # Table of Contents
-[Kubernetes Secure Architecture](#kubernetes-secure-architecture)
-[Containers Under the Hood](#containers-under-the-hood)
-[Network Policies](#network-policies)
-[GUI Elements](#gui-elements)
-[Secure Ingress](#secure-ingress)
-[Node Metadata Protection](#node-metadata-protection)
-[CIS Benchmarks](#cis-benchmarks)
-[Verifying Platform Binaries](#verifying-platform-binaries)
-[RBAC](#rbac)
+1. [Kubernetes Secure Architecture](#kubernetes-secure-architecture)
+2. [Containers Under the Hood](#containers-under-the-hood)
+3. [Network Policies](#network-policies)
+4. [GUI Elements](#gui-elements)
+5. [Secure Ingress](#secure-ingress)
+6. [Node Metadata Protection](#node-metadata-protection)
+7. [CIS Benchmarks](#cis-benchmarks)
+8. [Verifying Platform Binaries](#verifying-platform-binaries)
+9. [RBAC](#rbac)
 <br>
 
 # Kubernetes Secure Architecture
