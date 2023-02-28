@@ -9,11 +9,15 @@ keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 +++
 
 # Table of Contents
-1. [Kubernetes Secure Architecture](#kubernetes-secure-architecture)
-2. [Containers Under the Hood](#containers-under-the-hood)
-3. [Network Policies](#network-policies)
-4. [GUI Elements](#gui-elements)
-
+[Kubernetes Secure Architecture](#kubernetes-secure-architecture)
+[Containers Under the Hood](#containers-under-the-hood)
+[Network Policies](#network-policies)
+[GUI Elements](#gui-elements)
+[Secure Ingress](#secure-ingress)
+[Node Metadata Protection](#node-metadata-protection)
+[CIS Benchmarks](#cis-benchmarks)
+[Verifying Platform Binaries](#verifying-platform-binaries)
+[RBAC](#rbac)
 <br>
 
 # Kubernetes Secure Architecture
@@ -344,7 +348,7 @@ kubectl logs kube-bench-j76s9
 [INFO] 1.1 API Server
 ```
 
-# Verify Platform Binaries
+# Verifying Platform Binaries
 
 Binary validation is performed by comparing the current hash value of a file to the hash value provided by a trusted source. The hash value of a file is obtained using the `shasum` tool (`shasum -a 512 /usr/local/bin/kube-apiserver`). Binaries running within containers can also be performed using the contents of the container's process directory in `/proc`
 
