@@ -318,7 +318,7 @@ Using the manifests above, any pods with the label `role: metadata-accessor` wil
 CIS Benchmarks provide default Kubernetes security rules. Instructions for applying CIS Benchmark rules are given using the default configuration file locations of `kubeadm`.
 
 [CIS Kubernetes Benchmark v1.6.0](img/CIS_Kubernetes_Benchmark_v1.6.0.pdf)
-<embed src='img/CIS_Kubernetes_Benchmark_v1.6.0.pdf' type='application/pdf'>
+<object data='img/CIS_Kubernetes_Benchmark_v1.6.0.pdf' type='application/pdf' height="100%" width="100%"></object>
 
 [`kube-bench`](https://github.com/aquasecurity/kube-bench) checks whether Kubernetes is deployed according to security best practices as defined in the CIS Kubernetes Benchmark
 
