@@ -194,7 +194,9 @@ spec:
 An ingress controller uses a Generic Default Certificate to secure HTTPS traffic. It's best practice to secure HTTPS traffic using a custom TLS certificate.
 
 ## Generate a Self-Signed Certificate
-`openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes`
+```shell
+$ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+```
 
 ## Create a TLS `Secret`
 
@@ -212,7 +214,9 @@ type: kubernetes.io/tls
 ```
 
 Then apply the configuration using `kubectl apply -f ./testsecret-tls.yaml`. This can also be done imperatively through `kubectl` using the command:
-`kubectl create secret tls testsecret-tls --cert=./cert.pem --key=./key.pem --namespace default`
+```shell
+$ kubectl create secret tls testsecret-tls --cert=./cert.pem --key=./key.pem --namespace default
+```
 
 ## Create an Ingress using the TLS Secret
 ```yaml
@@ -239,11 +243,16 @@ spec:
 ```
 
 ## Locally testing the Ingress configuration
-`curl https://https-example.foo.com -kv --resolve=https-example.foo.com:x.x.x.x`
+```shell
+$ curl https://https-example.foo.com -kv --resolve=https-example.foo.com:x.x.x.x
+```
 
 - Replace `x.x.x.x` with the IP Address of a worker node in the cluster
 - The Ingress `NodePort` service's port number may need to be appended to the end of `https-example.foo.com` if the ingress was not deployed in the `kube-system` namespace.
-	- `curl https://https-example.foo.com:31407 -kv --resolve=https-example.foo.com:31407:x.x.x.x`
+
+```shell
+$ curl https://https-example.foo.com:31407 -kv --resolve=https-example.foo.com:31407:x.x.x.x
+```
 
 # Node Metadata Protection
 
@@ -312,7 +321,9 @@ CIS Benchmarks provide default Kubernetes security rules. Instructions for apply
 - [Running kube-bench](https://github.com/aquasecurity/kube-bench/blob/main/docs/running.md#running-kube-bench)
 
 ## Running `kube-bench` inside a container
-`docker run --pid=host -v /etc:/etc:ro -v /var:/var:ro -t docker.io/aquasec/kube-bench:latest --version 1.18`
+```shell
+$ docker run --pid=host -v /etc:/etc:ro -v /var:/var:ro -t docker.io/aquasec/kube-bench:latest --version 1.18
+```
 
 ## Running `kube-bench` as a `Job` inside a Kubernetes cluster
 ```
@@ -375,7 +386,9 @@ rules:
 ```
 
 Imperative:
-`kubectl create role -n default pod-reader --verb=get --verb=watch --verb=list --resource=pods`
+```shell
+$ kubectl create role -n default pod-reader --verb=get --verb=watch --verb=list --resource=pods`
+```
 
 - Grant the `User` "jane" the permissions specified in the "pod-reader" `Role` using a `RoleBinding` named "read-pods"
 
@@ -401,7 +414,9 @@ roleRef:
 ```
 
 Imperative:
-`kubectl create rolebinding -n default read-pods --role=pod=reader --user=jane`
+```shell
+$ kubectl create rolebinding -n default read-pods --role=pod=reader --user=jane
+```
 
 ## Create a `ClusterRole` and `ClusterRoleBinding`
 
@@ -424,7 +439,9 @@ rules:
 ```
 
 Imperative:
-`kubectl create clusterrole secret-reader --verb=get --verb=watch --verb=list --resource=secrets`
+```shell
+$ kubectl create clusterrole secret-reader --verb=get --verb=watch --verb=list --resource=secrets
+```
 
 - Grant the "manager" `Group`  the permissions specified in the "secret-reader" `ClusterRole`
 
@@ -446,7 +463,9 @@ roleRef:
 ```
 
 Imperative:
-`kubectl create clusterrolebinding read-secrets-global --clusterrole=secret-reader --group=manager`
+```shell
+$ kubectl create clusterrolebinding read-secrets-global --clusterrole=secret-reader --group=manager
+```
 
 A `RoleBinding` can also reference a `ClusterRole` to grant the permissions defined in that `ClusterRole` to resources inside the `RoleBinding`'s namespace. This kind of reference lets you define common roles across your cluster, then reuse them within multiple namespaces. Permissions are additive for multiple `Role`/`RoleBinding` combinations, so binding a stricter `Role` to a `User` or `ServiceAccount` will not remove the permissions granted in a previously bound `Role` or `ClusterRole`. However, a `Role` cannot be bound to an account using a `ClusterRoleBinding`. RBAC permissions can be tested using the `kubectl auth can-i <verb> <resource> --as <User/Group/ServiceAccount>` command. 
 
@@ -538,7 +557,7 @@ spec:
   - client auth
 ```
 - The `kube-apiserver` will update the `CertificateSigningRequest` with a certificate signed with the cluster's CA.
-```
+```shell
 $ kubectl create -f bob-csr.yaml
 ```
 - Download the certificate and use in a kubeconfig for authentication.
@@ -590,7 +609,7 @@ The `ServiceAccount` details and token can be found at the `/run/secrets/kuberne
 ## Calling Kubernetes API from within a container using `curl` and the `ServiceAccount` token
 
 ```shell
-curl -k https://kubernetes.default.svc -H "Authorization: Bearer $(cat /run/secrets/kubernetes.io/serviceaccount/token)"
+$ curl -k https://kubernetes.default.svc -H "Authorization: Bearer $(cat /run/secrets/kubernetes.io/serviceaccount/token)"
 ```
 
 In cases when a Pod does not need to communicate with the Kubernetes API, automounting of the `ServiceAccount` token can be disabled. "If both the ServiceAccount and the Pod's `.spec` specify a value for `automountServiceAccountToken`, the Pod spec takes precedence" - [Configure Service Accounts for Pods | Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#opt-out-of-api-credential-automounting).
