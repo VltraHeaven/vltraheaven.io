@@ -9,15 +9,15 @@ keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 +++
 
 # Table of Contents
-1. [Kubernetes Secure Architecture](#kubernetes-secure-architecture)
-2. [Containers Under the Hood](#containers-under-the-hood)
-3. [Network Policies](#network-policies)
-4. [GUI Elements](#gui-elements)
-5. [Secure Ingress](#secure-ingress)
-6. [Node Metadata Protection](#node-metadata-protection)
-7. [CIS Benchmarks](#cis-benchmarks)
-8. [Verifying Platform Binaries](#verifying-platform-binaries)
-9. [RBAC](#rbac)
+1. [Kubernetes Secure Architecture](https://vltraheaven.io/blog/cks_notes/#kubernetes-secure-architecture)
+2. [Containers Under the Hood](https://vltraheaven.io/blog/cks_notes/#containers-under-the-hood)
+3. [Network Policies](https://vltraheaven.io/blog/cks_notes/#network-policies)
+4. [GUI Elements](https://vltraheaven.io/blog/cks_notes/#gui-elements)
+5. [Secure Ingress](https://vltraheaven.io/blog/cks_notes/#secure-ingress)
+6. [Node Metadata Protection](https://vltraheaven.io/blog/cks_notes/#node-metadata-protection)
+7. [CIS Benchmarks](https://vltraheaven.io/blog/cks_notes/#cis-benchmarks)
+8. [Verifying Platform Binaries](https://vltraheaven.io/blog/cks_notes/#verifying-platform-binaries)
+9. [RBAC](https://vltraheaven.io/blog/cks_notes/#rbac)
 <br>
 
 # Kubernetes Secure Architecture
