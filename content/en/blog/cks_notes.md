@@ -8,6 +8,11 @@ tags = ["Kubernetes"]
 keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 +++
 
+# References
+
+- [Kubernetes CKS 2023 Complete Course](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
+- [Kubernetes Documentation](https://kubernetes.io/docs/home/)
+
 # Table of Contents
 1. [Kubernetes Secure Architecture](https://vltraheaven.io/blog/cks_notes/#kubernetes-secure-architecture)
 2. [Containers Under the Hood](https://vltraheaven.io/blog/cks_notes/#containers-under-the-hood)
