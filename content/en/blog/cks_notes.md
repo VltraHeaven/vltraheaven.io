@@ -473,6 +473,15 @@ $ kubectl create clusterrolebinding read-secrets-global --clusterrole=secret-rea
 
 A `RoleBinding` can also reference a `ClusterRole` to grant the permissions defined in that `ClusterRole` to resources inside the `RoleBinding`'s namespace. This kind of reference lets you define common roles across your cluster, then reuse them within multiple namespaces. Permissions are additive for multiple `Role`/`RoleBinding` combinations, so binding a stricter `Role` to a `User` or `ServiceAccount` will not remove the permissions granted in a previously bound `Role` or `ClusterRole`. However, a `Role` cannot be bound to an account using a `ClusterRoleBinding`. RBAC permissions can be tested using the `kubectl auth can-i <verb> <resource> --as <User/Group/ServiceAccount>` command. 
 
+```shell
+# See if the user "joe" can get pods
+$ kubectl auth can-i get pod --as joe
+
+# See if the ServiceAccount "deployment-check-sa" in the "default" Namespace
+# can list Deployments
+$ kubectl auth can-i list deployment --as system:serviceaccount:default:deployment-check-sa
+```
+
 You can _aggregate_ several ClusterRoles into one combined ClusterRole. A controller, running as part of the cluster control plane, watches for ClusterRole objects with an `aggregationRule` set. The `aggregationRule` defines a label [selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) that the controller uses to match other ClusterRole objects that should be combined into the `rules` field of this one - [Using RBAC Authorization | Kubernetes](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles).
 
 Here is an example aggregated ClusterRole:
