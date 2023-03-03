@@ -23,6 +23,13 @@ keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 7. [CIS Benchmarks](https://vltraheaven.io/blog/cks_notes/#cis-benchmarks)
 8. [Verifying Platform Binaries](https://vltraheaven.io/blog/cks_notes/#verifying-platform-binaries)
 9. [RBAC](https://vltraheaven.io/blog/cks_notes/#rbac)
+10. [Restricting API Access](https://vltraheaven.io/blog/cks_notes/#restricting-api-access)
+11. [Upgrading Kubernetes](https://vltraheaven.io/blog/cks_notes/#upgrading-kubernetes)
+12. [Managing Kubernetes Secrets](https://vltraheaven.io/blog/cks_notes/#managing-kubernetes-secrets)
+13. [Container Runtime Sandboxes](https://vltraheaven.io/blog/cks_notes/#container-runtime-sandboxes)
+14. [OS Level Security Domains](https://vltraheaven.io/blog/cks_notes/#os-level-security-domains)
+15. [mTLS](https://vltraheaven.io/blog/cks_notes/#mtls)
+16. [OPA](https://vltraheaven.io/blog/cks_notes/#opa)
 <br>
 
 # Kubernetes Secure Architecture
@@ -654,4 +661,476 @@ spec:
   serviceAccountName: build-robot
   automountServiceAccountToken: false
   ...
+```
+
+# Restricting API Access
+
+## Pod Request Workflow
+
+![Kubernetes Pod Request Workflow](img/kubernetes-pod-request-workflow.png)
+
+1. Authentication - Validate the identity of the account making the request
+2. Authorization - Verify if the authenitcated account has permissions to create pods
+3. Admission Control - Ensure creating a new pod will not breach the cluster's pod limit 
+
+API requests must authenticate as a normal user or a `ServiceAccount`. Otherwise, the request will be treated as it was sent as an anonymous user.
+
+## Securing the `kube-apiserver`
+- Deny anonymous user requests
+- Block access using an insecure port (HTTP)
+- Restrict external access to the API Server
+- Restrict access from Nodes to the API Server (NodeRestriction Admission Controller)
+- Prevent unauthorized access ([RBAC](https://vltraheaven.io/blog/cks_notes/#rbac))
+- Prevent Pods from accessing the API Server (`automountServiceAccountToken: false` and `NetworkPolicy`)
+- Restrict network access to the API Server using a firewall and allowing specific ip ranges
+
+## Deny anonymous user requests
+
+Anonymous authenciation can be disabled using the `--anonymous-auth=false` argument for the `kube-apiserver` - [`kube-apiserver` command-line arguments](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/). Anonymous access is enabled by default if the `authorization-mode` argument is set to any other value than `AlwaysAllow`. However, explicit authorization is required for anonymous authentication if the `authorization-mode` argument is set to ABAC or RBAC. On a kubeadm-provisioned cluster, the command-line arguments for the `kube-apiserver` can be modified in the `/etc/kubernetes/manifests/kube-apiserver.yaml` file. It's worth noting that the `kube-apiserver` uses anonymous authentication for it's own liveness probe, so disabling anonymous auth could cause the `kube-apiserver` to go into `CrashLoopBackoff` due to failed liveness checks. 
+
+## Block access using an insecure port (HTTP)
+
+Since Kubernetes v1.20, enabling insecure HTTP access is no longer possible. This was previously enabled using the `--insecure-port=<port number>` argument. Setting this argument to `--insecure-port=0` manually disables insecure HTTP access. Authentication and authorization to the `kube-apiserver` is effectively bypassed when requests are sent to an insecure HTTP port, so enabling this argument is extremely dangerous and not recommended. 
+
+### Manual API Server Request using `curl`
+
+Manual requests to the `kube-apiserver` can be performed by retrieving the following data from a kubeconfig:
+- The cluster's base64-decoded `certificate-authority-data` written to a file (e.g. ca)
+- The user's base64-decoded `client-certificate-data` written to a file (e.g. crt)
+- The user's base64-decoded `client-key-data` written to a file (e.g. key)
+- The API Server's IP Address or Hostname (e.g. https://10.40.0.10:6443)
+
+```shell
+curl https://10.40.0.10:6443 --cacert ca --cert crt --key key
+```
+
+### Inspecting Certificates using `openssl`
+```shell
+openssl x509 -in crt 
+```
+
+## Restrict External Access to the API Server
+
+The `kube-apiserver` will be accessible on any node if Kubernetes `Service` is set to `NodePort`.  This could expose the `kube-apiserver` to undesired network access. The Kubernetes `Service` should be set to `ClusterIP`.
+
+## Restrict access from Nodes to the API Server (NodeRestriction Admission Controller)
+
+The NodeRestriction admission controller is enabled using the `--enable-admission-plugins=NodeRestriction` argument on the `kube-apiserver`. 
+
+"This admission controller limits the `Node` and `Pod` objects a kubelet can modify. In order to be limited by this admission controller, kubelets must use credentials in the `system:nodes` group, with a username in the form `system:node:<nodeName>`. Such kubelets will only be allowed to modify their own `Node` API object, and only modify `Pod` API objects that are bound to their node. kubelets are not allowed to update or remove taints from their `Node` API object" - [Admission Controllers Reference | Kubernetes](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#noderestriction). The NodeRestriction admission controller ensures secure workload isolation via labels. No one can petend to be a "secure" node and schedule secure pods.
+
+There are also restricted labels that nodes cannot modify when the NodeRestriction admission controller is enabled. These start with `node-restriction.kubernetes.io/`.
+
+# Upgrading Kubernetes
+
+### Reasons to Upgrade Kubernetes Frequently
+- Support
+- Security Fixes
+- Bug Fixes
+- Stay up-to-date for dependencies
+
+Kubernetes releases are labeled using symantic versioning:
+> v1.19.2
+> - 1 - major version
+> - 19 - minor version
+> - 2 - patch version
+
+A minor version releases every 3 months and there is no Long Time Support (LTS) in Kubernetes. Kubernetes maintains maintenance release branches for the most recent three minor versions. Applicable fixes may be backported to those three release branches depending on severity and feasibility.
+
+## Cluster Component Upgrade Info
+
+- First upgrade the master node components
+	- `kube-apiserver`
+	- `kube-controller-manager`
+	- `kube-scheduler`
+- Next, upgrade the worker node components
+	- `kubelet`
+	- `kube-proxy`
+
+Master node components must either the same major and minor version as the `kube-apiserver`, or be one minor version behind. This behavior allows for in-place upgrades. `kubectl` can be one minor version ahead or behind the `kube-apiserver`. The `kubelet` and `kube-proxy` must share the same version, but can be two minor versions behind the `kube-apiserver`.
+
+## Cluster Upgrade Workflow
+
+1. `kubectl drain`
+	- Safely eficts all pods from the node
+	- Marks the node as `SchedulingDisable` (`kubectl cordon`)
+2. Perform the upgrade
+	- `apt-mark hold kubelet kubectl`
+	- `apt-mark unhold kubeadm`
+	- `apt-get update` 
+	- `apt-get install kubeadm=1.x.x-00`
+	- `kubeadm upgrade plan`
+	- `kubeadm upgrade apply v1.x.x` (master) /  `kubeadm upgrade node` (worker)
+	- `apt-mark unhold kubelet kubectl`
+	- `apt-get install kubelet=1.x.x-00 kubectl=1.x.x-00`
+	- `apt-mark hold kubelet kubectl kubeadm`
+3. `kubectl uncordon`
+
+[Upgrading kubeadm clusters | Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
+
+# Managing Kubernetes Secrets
+
+"A Secret is an object that contains a small amount of sensitive data such as a password, a token, or a key. Such information might otherwise be put in a [Pod](https://kubernetes.io/docs/concepts/workloads/pods/ "A Pod represents a set of running containers in your cluster.") specification or in a [container image](https://kubernetes.io/docs/reference/glossary/?all=true#term-image "Stored instance of a container that holds a set of software needed to run an application."). Using a Secret means that you don't need to include confidential data in your application code.
+
+Because Secrets can be created independently of the Pods that use them, there is less risk of the Secret (and its data) being exposed during the workflow of creating, viewing, and editing Pods. Kubernetes, and applications that run in your cluster, can also take additional precautions with Secrets, such as avoiding writing secret data to nonvolatile storage." - https://kubernetes.io/docs/concepts/configuration/secret/
+
+## Creating and Using Secrets
+
+- Create the `Secret` named "mysecret"
+Imperative:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+  namespace: default
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: YmlyZHNhcmVudHJlYWw=
+```
+
+Declarative:
+```shell
+$ kubectl create secret generic -n default mysecret --from-literal=username=admin --from-literal=1f2d1e2e67df
+```
+
+- Create a pod that mounts the `Secret` 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      optional: true
+```
+
+If a user has access on a node, the user is able to see the environment variable `Secret` of a pod using `crictl inspect`/`docker inspect` and can access mounted secrets from the `/proc/<pid>/root` directory on the host.
+
+## Accessing a `Secret` in `etcd` 
+
+```shell
+# Accessing secret in etcd
+cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep etcd
+
+ETCDCTL_API=3 etcdctl --cert /etc/kubernetes/pki/apiserver-etcd-client.crt --key /etc/kubernetes/pki/apiserver-etcd-client.key --cacert /etc/kubernetes/pki/etcd/ca.crt endpoint health
+
+# --endpoints "https://127.0.0.1:2379" not necessary because we’re on same node
+
+ETCDCTL_API=3 etcdctl --cert /etc/kubernetes/pki/apiserver-etcd-client.crt --key /etc/kubernetes/pki/apiserver-etcd-client.key --cacert /etc/kubernetes/pki/etcd/ca.crt get /registry/secrets/default/mysecret
+
+```
+
+## Encrypting `etcd`
+
+Since the `kube-apiserver` is the only component that communicates with `etcd`, it will be responsible for encrypting secrets. This can be achieved using an `EncryptionConfiguration`.
+
+"The `kube-apiserver` process accepts the `--encryption-provider-config=/path/to/encryptionconfig.yaml` argument that controls how API data is encrypted in etcd. The configuration is provided as an API named [`EncryptionConfiguration`](https://kubernetes.io/docs/reference/config-api/apiserver-encryption.v1/). `--encryption-provider-config-automatic-reload` boolean argument determines if the file set by `--encryption-provider-config` should be automatically reloaded if the disk contents change. This enables key rotation without API server restarts. An example configuration is provided below." - [Encrypting Secret Data at Rest | Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
+
+```yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      - identity: {}
+      - aesgcm:
+          keys:
+            - name: key1
+              secret: c2VjcmV0IGlzIHNlY3VyZQ==
+            - name: key2
+              secret: dGhpcyBpcyBwYXNzd29yZA==
+      - aescbc:
+          keys:
+            - name: key1
+              secret: c2VjcmV0IGlzIHNlY3VyZQ==
+            - name: key2
+              secret: dGhpcyBpcyBwYXNzd29yZA==
+      - secretbox:
+          keys:
+            - name: key1
+              secret: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY=
+```
+
+The `EncryptionConfiguration` providers are used in order. The first provider is used when saving a new `Secret`. In the example above, no encryption is used by default, but `aesgcm`, `aescbc` and `secretbox` are used as fallbacks. A `Secret` encrypted with any one of these algorithms can be decrypted. 
+
+```yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+      - configmaps
+      - pandas.awesome.bears.example
+    providers:
+      - aesgcm:
+          keys:
+            - name: key1
+              secret: c2VjcmV0IGlzIHNlY3VyZQ==
+      - identity: {}
+```
+
+In the example above, all of the specified resources in the `resources.resources` map are saved using `aesgcm` by default. However, unencrypted instances of these resources can still be read (`identity: {}`). In a production environment, it's best to use an external keystore as a provider to hold encryption keys as an attacker who gains access to a master node may be able to read encryption keys from the `EncryptionConfiguration` manifest located on the host's filesystem. 
+
+"For high-availability configurations (with two or more control plane nodes), the encryption configuration file must be the same! Otherwise, the `kube-apiserver` component cannot decrypt data stored in the etcd." - [Encrypting Secret Data at Rest | Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
+
+The `/etc/kubernetes/manifests/kube-apiserver.yaml` must be edited to include the `--encryption-provider-config=/path/to/encryptionconfig.yaml` argument and a volume mount and `mountPath` must be added to make the `EncryptionConfiguration` available from within the `kube-apiserver` pod. In case the `kube-apiserver.yaml` file is misconfigured and the `kube-apiserver` pod does not come back up, the logs for the `kube-apiserver` can be found in `/var/log/pods`.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 10.10.30.4:6443
+  creationTimestamp: null
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    ...
+    - --encryption-provider-config=/etc/kubernetes/enc/enc.yaml  # <-- add this line
+    volumeMounts:
+    ...
+    - name: enc                           # <-- add this line
+      mountPath: /etc/kubernetes/enc      # <-- add this line
+      readonly: true                      # <-- add this line
+    ...
+  volumes:
+  ...
+  - name: enc                             # <-- add this line
+    hostPath:                             # <-- add this line
+      path: /etc/kubernetes/enc           # <-- add this line
+      type: DirectoryOrCreate             # <-- add this line
+  ...
+```
+
+Resources that were created before encryption configuration must be recreated to receive encryption.
+
+```shell
+$ kubectl get secret -A -oyaml | kubectl replace -f -
+```
+
+
+# Container Runtime Sandboxes
+
+"Containers are not contained". Containers still communicate with the host's kernel during runtime. If a container breakout takes place in one container, an attacker could gain access to all other containers running on the host. A Container Runtime Sandbox acts as an additional security layer to reduce the attack surface exposed to a container. This Sandbox blocks a container from making syscalls directly to the host's kernel.
+
+![Container Sandbox Diagram](img/container-sandbox-diagram.png)
+
+## Container Runtime Sandbox Considerations
+- May require more resources
+- Is a better solution for smaller containers
+- Not recommended for syscall intensive workloads
+- No direct access to hardware
+
+The `strace` command can be used to inspect which syscalls are made for a particular process.
+
+```shell
+# Inspect which syscalls are made to the linux kernel for the "uname" command
+strace uname -r
+```
+
+The Open Container Initiative (OSI) is a Linux Foundation project that designs open standards for container virtualization. These specifications allow developers to engineer container-based applications while maintaining compatibility with other projects in the container software ecosystem. 
+
+## Container Runtimes in Kubernetes
+- Add the `--container-runtime={string}` or `--container-runtime-endpoint {string}` argument to the `kubelet` configuration.
+- Create a `RuntimeClass` resource in the cluster - [Runtime Class | Kubernetes](https://kubernetes.io/docs/concepts/containers/runtime-class/)
+
+![Container Runtime Diagram](img/container-runtime-diagram.png)
+
+Currently, the `kubelet` can only use one container runtime at any given time. Using a Container Runtime allows the use of other runtimes increases the flexibility of the cluster (docker, containerd).
+
+## Kata Containers
+[Kata Containers](https://katacontainers.io/) is a runtime sandbox that provides additional isolation to containers using a lightweight VM and individual kernels. "A second layer of isolation is created on top of those provided by traditional namespace-containers. The hardware virtualization interface is the basis of this additional layer. Kata will launch a lightweight virtual machine, and use the guest’s Linux kernel to create a container workload, or workloads in the case of multi-container pods. In Kubernetes and in the Kata implementation, the sandbox is carried out at the pod level. In Kata, this sandbox is created using a virtual machine." - [kata-containers/virtualization.md at main · kata-containers/kata-containers · GitHub](https://github.com/kata-containers/kata-containers/blob/main/docs/design/virtualization.md#virtualization-in-kata-containers)
+
+![Kata Containers](img/kata-containers.png)
+
+## gVisor
+"gVisor is an application kernel, written in Go, that implements a substantial portion of the [Linux system call interface](https://en.wikipedia.org/wiki/Linux_kernel_interfaces). It provides an additional layer of isolation between running applications and the host operating system." - [What is gVisor? - gVisor](https://gvisor.dev/docs/)
+
+gVisor (`runsc`) acts as a user-space kernel for containers that simulates kernel syscalls with limited functionality.
+
+![gvisor](img/gvisor.png)
+
+## Configuring a `RuntimeClass`
+```yaml
+# RuntimeClass is defined in the node.k8s.io API group
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  # The name the RuntimeClass will be referenced by.
+  # RuntimeClass is a non-namespaced resource.
+  name: gvisor 
+# The name of the corresponding CRI configuration
+handler: runsc 
+```
+
+Once RuntimeClasses are configured for the cluster, you can specify a `runtimeClassName` in the Pod spec to use it. For example:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  runtimeClassName: gvisor
+  # ...
+```
+
+[Runtime Class | Kubernetes](https://kubernetes.io/docs/concepts/containers/runtime-class/)
+
+# OS Level Security Domains
+
+"A security context defines privilege and access control settings for a Pod or Container. Security context settings include, but are not limited to:
+
+-   Discretionary Access Control: Permission to access an object, like a file, is based on [user ID (UID) and group ID (GID)](https://wiki.archlinux.org/index.php/users_and_groups).
+-   [Security Enhanced Linux (SELinux)](https://en.wikipedia.org/wiki/Security-Enhanced_Linux): Objects are assigned security labels.
+-   Running as privileged or unprivileged.
+-   [Linux Capabilities](https://linux-audit.com/linux-capabilities-hardening-linux-binaries-by-removing-setuid/): Give a process some privileges, but not all the privileges of the root user.
+-   [AppArmor](https://kubernetes.io/docs/tutorials/security/apparmor/): Use program profiles to restrict the capabilities of individual programs.
+-   [Seccomp](https://kubernetes.io/docs/tutorials/security/seccomp/): Filter a process's system calls.
+-   `allowPrivilegeEscalation`: Controls whether a process can gain more privileges than its parent process. This bool directly controls whether the [`no_new_privs`](https://www.kernel.org/doc/Documentation/prctl/no_new_privs.txt) flag gets set on the container process. `allowPrivilegeEscalation` is always true when the container:
+    -   is run as privileged, or
+    -   has `CAP_SYS_ADMIN`
+-   `readOnlyRootFilesystem`: Mounts the container's root filesystem as read-only.
+
+The above bullets are not a complete set of security context settings -- please see [SecurityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#securitycontext-v1-core) for a comprehensive list." - https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+
+A security context can be defined at the pod level and the container level. The container level security context overrides the pod level security context.
+
+## Setting Container UID and GID 
+
+ ```yaml
+...
+spec:
+# Pod Level
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+  containers:
+  - image: nginx
+    name: webserver
+    # Container Level
+    securityContext:
+      runAsUser: 300
+...
+```
+
+## Forcing a Container to Run as Non-Root
+
+ ```yaml
+...
+spec:
+  containers:
+  - image: nginx
+    name: webserver
+    securityContext:
+      runAsNonRoot: true
+	  # Include 'runAsUser' if the container image runs as root by default
+	  runAsUser: 1000 
+
+...
+```
+
+## Privileged Containers
+
+Privileged means the container's root user is directly mapped to UID 0 (root) on the host.
+
+![](img/ralph.jpg)
+
+By default, Docker containers run as "unprivileged" and running privileged containers requires the following `docker run` command:
+```shell
+$ docker run --privileged
+```
+
+This can be achieved in Kubernetes as well:
+
+
+```yaml
+...
+spec:
+  containers:
+  - image: nginx
+    name: webserver
+    securityContext:
+      privileged: true
+...
+```
+
+## `AllowPrivilegeEscalation`
+
+`AllowPrivilegeEscalation` controls whether a process can gain more privileges than it's parent process. By default, Kubernetes allows privilege escalation. 
+
+```yaml
+...
+spec:
+  containers:
+  - image: nginx
+    name: webserver
+    securityContext:
+      AllowPrivilegeEscalation: false
+...
+```
+
+# mTLS
+
+Mutual TLS (mTLS) is a bilateral authentication method that allows two parties to authenticate each other simultaneously. By default, Kubernetes allows all pods to communicate over unencrypted channels. mTLS allows pods to communicate using encrypted network traffic. To achieve this, each app container would need the ability to encrypt and decrypt traffic.
+
+![mTLS Diagram](img/mtls.png)
+
+A ServiceMesh can be used to make the setup and management of mTLS easier. This allows the application containers to continue to use HTTP communication while the ServiceMesh or Proxy sidecar containers manage TLS logic.
+
+![ServiceMesh/Proxy Diagram](img/servicemesh.png)
+
+ServiceMesh Providers:
+- [Istio]( https://istio.io/)
+- [LinkerD](https://linkerd.io/)
+
+A ServiceMesh/Proxy container acts as a man-in-the-middle between application containers and the parties they communicate with. This is achieved by configuring iptables rules to route traffic through the proxy, and is typically carried out in an initContainer with NET_ADMIN capability at pod initialization.
+
+[Demystifying Istio's Sidecar Injection Model](https://istio.io/latest/blog/2019/data-plane-setup/)
+
+# OPA
+
+"The Open Policy Agent (OPA) is an open source, general-purpose policy engine that enables unified, context-aware policy enforcement across the entire stack."
+
+OPA is not Kubernetes-specific. OPA can be used for a multitude of web applications. It offers easy implementation of policies using the domain-specific Rego programming language, works with JSON/YAML, and uses Admission Controllers in Kubernetes.
+
+OPA Gatekeeper provides CRDs to allow easier integration of OPA into a Kubernetes cluster. 
+
+## `ConstraintTemplate` and `Constraint`
+
+A `ConstraintTemplate` allows OPA to create a general-use CRD that we can implement using a `Constraint`.
+
+```yaml
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredlabels
+...
+```
+
+```yaml
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: pod-must-have-gk
+...
 ```
