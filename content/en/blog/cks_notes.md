@@ -8,6 +8,8 @@ tags = ["Kubernetes"]
 keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 +++
 
+![MITRE Kubernetes ATT&CK Matrix](img/MITRE.png)
+
 # References
 
 - [Kubernetes CKS 2023 Complete Course](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
@@ -30,6 +32,11 @@ keywords = ["DevOps", "education", "Linux", "Kubernetes", "cks"]
 14. [OS Level Security Domains](https://vltraheaven.io/blog/cks_notes/#os-level-security-domains)
 15. [mTLS](https://vltraheaven.io/blog/cks_notes/#mtls)
 16. [OPA](https://vltraheaven.io/blog/cks_notes/#opa)
+17. [Image Footprint](#image-footprint)
+18. [Static Analysis](#static-analysis)
+19. [Image Vulnerability Scanning](#image-vulnerability-scanning)
+20. [Secure Supply Chain](#secure-supply-chain)
+21. [Behavioral Analytics](#behavioral-analytics)
 <br>
 
 # Kubernetes Secure Architecture
@@ -1134,3 +1141,446 @@ metadata:
   name: pod-must-have-gk
 ...
 ```
+
+# Image Footprint
+
+Containers vs. Virtual Machines
+![](img/containers-vms.png)
+
+All containers are organized in kernel groups and have access to the same host kernel of the same host's Operating System.
+![](img/containers-kernel.png)
+
+Container images are built in layers. As layers increase, so does the size of the container image. When creating a Dockerfile, only the instructions `RUN`, `COPY`, and `ADD` create layers. All other instructions create temporary images and do not increase the size of the build.
+
+## Reducing Image Footprint
+
+Multi-Stage builds can be used to reduce a container image's footprint.
+```Dockerfile
+FROM ubuntu
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go
+COPY app.go .
+RUN CGO_ENABLED=0 go build app.go
+CMD ["./app"]
+```
+
+This Dockerfile uses Ubuntu as it's base. It's likely that this image's footprint is far larger than we need to run our little go app.
+
+```Dockerfile
+# build container stage 1
+FROM ubuntu
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go
+COPY app.go .
+RUN CGO_ENABLED=0 go build app.go
+
+# app container stage 2
+FROM alpine
+COPY --from=0 /app .
+CMD ["./app"]
+```
+
+Instead we can build our app using the Ubuntu image in stage 1, then `COPY` the binary to an image with a much smaller footprint in stage 2. Our resulting image will use the smaller container image from stage 2 as it's base. This way, we can reduce the potential attack surface of any containers spawned from this image and decrease the image's overall size.
+
+## Securing and Hardening Images
+
+Container images should always be built using specific base image and package versions. This reduces the risk of package updates in upstream images breaking the running application. 
+
+```Dockerfile
+FROM ubuntu:22.04
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go-1.18.0
+COPY app.go .
+RUN CGO_ENABLED=0 go build app.go
+
+FROM alpine:3.12.1
+COPY --from=0 /app .
+CMD ["./app"]
+```
+
+It's also important to avoid running the application as root inside the container image.
+
+```Dockerfile
+FROM ubuntu:22.04
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go-1.18.0
+COPY app.go .
+RUN CGO_ENABLED=0 go build app.go
+
+FROM alpine:3.12.1
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -h /opt/app
+COPY --from=0 /app /opt/app
+USER appuser
+CMD ["/opt/app"]
+```
+
+After the `USER` instruction is called, all following instructions are performed as the specified user.
+
+Making the filesystem read-only is a great way to ensure the immutability of the container image's filesystem at runtime. This can also achieved in Kubernetes, but doing so while building the container is a good exercise of defense-in-depth.
+
+```Dockerfile
+FROM ubuntu:22.04
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go-1.18.0
+COPY app.go .
+RUN CGO_ENABLED=0 go build app.go
+
+FROM alpine:3.12.1
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -h /opt/app
+RUN chmod a-w /etc /lib /sbin /usr /root
+COPY --from=0 /app /opt/app
+USER appuser
+CMD ["/opt/app"]
+```
+
+Lastly, attackers can be prohibited from getting command-line access to a container by removing shell access. 
+
+```Dockerfile
+FROM ubuntu:22.04
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go-1.18.0
+COPY app.go .
+RUN CGO_ENABLED=0 go build app.go
+
+FROM alpine:3.12.1
+RUN chmod a-w /etc /bin /lib /sbin /usr /root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -h /opt/app
+RUN chmod a-w /etc /lib /sbin /usr /root
+RUN rm -rf /bin/*
+COPY --from=0 /app /opt/app
+USER appuser
+CMD ["/opt/app"]
+```
+
+[Dockerfile Best-Practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
+
+# Static Analysis
+
+[kubesec](https://kubesec.io/) is an open-source, opinionated tool for risk anaylsis scanning of Kubernetes resources. Kubesec runs as a binary, a Docker container, a kubectl (kubectl-scan) plugin and a Kubernetes Admission Controller (kubesec-webhook). 
+
+## Scaning using the `kubesec` Docker container
+```shell
+$ docker run -i kubesec/kubesec:512c5e0 scan /dev/stdin < pod.yaml
+```
+
+"Kubesec returns a returns a JSON array, and can scan multiple YAML documents in a single input file." - https://kubesec.io/#example-output
+
+
+"[OPA Conftest](https://github.com/open-policy-agent/conftest) helps you write tests against structured configuration data. Using Conftest you can write tests for your Kubernetes configuration, Tekton pipeline definitions, Terraform code, Serverless configs or any other config files. 
+
+Conftest uses the Rego language from [Open Policy Agent](https://www.openpolicyagent.org/) for writing the assertions. You can read more about Rego in [How do I write policies](https://www.openpolicyagent.org/docs/how-do-i-write-policies.html) in the Open Policy Agent documentation." - [GitHub - open-policy-agent/conftest: Write tests against structured configuration data using the Open Policy Agent Rego query language](https://github.com/open-policy-agent/conftest)
+
+## Conftest scanning for Kubernetes YAML
+Example. Save the following as `policy/deployment.rego`:
+```go
+package main
+
+deny[msg] {
+  input.kind == "Deployment"
+  not input.spec.template.spec.securityContext.runAsNonRoot
+
+  msg := "Containers must not run as root"
+}
+
+deny[msg] {
+  input.kind == "Deployment"
+  not input.spec.selector.matchLabels.app
+
+  msg := "Containers must provide app label for pod selectors"
+}
+```
+
+Next, save the following Kubernetes manifest as `deployment.yaml`:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: test
+  name: test
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: test
+    spec:
+      containers:
+        - image: httpd
+          name: httpd
+          resources: {}
+status: {}
+```
+
+Assuming you have a Kubernetes deployment in `deployment.yaml` you can run Conftest like so:
+```shell
+$ conftest test deployment.yaml
+FAIL - deployment.yaml - Containers must not run as root
+FAIL - deployment.yaml - Containers must provide app label for pod selectors
+
+2 tests, 0 passed, 0 warnings, 2 failures, 0 exceptions
+```
+
+Fixing the `deployment.yaml` file according to `conftest`'s suggestions:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: test
+  name: test
+spec:
+  replicas: 1
+  # "app" label for pod selector (input.spec.selector.matchLabels.app)
+  selector:
+    matchLabels:
+      app: test
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: test
+    spec:
+	  # non-root container (input.spec.template.spec.securityContext.runAsNonRoot)
+	  securityContext:
+	    runAsNonRoot: true
+      containers:
+        - image: httpd
+          name: httpd
+          resources: {}
+status: {}
+```
+
+## Conftest scanning for Dockerfiles
+Policies:
+```go
+# Denies the use of Ubuntu images
+package main
+denylist = [
+"ubuntu"
+]
+deny[msg] {
+input[i].Cmd == "from"
+val := input[i].Value
+contains(val[i], denylist[_])
+msg = sprintf("unallowed image found %s", [val])
+}
+```
+
+```go
+# A list of denylisted commands
+package commands
+
+denylist = [
+  "apk",
+  "apt",
+  "pip",
+  "curl",
+  "wget",
+]
+
+deny[msg] {
+  input[i].Cmd == "run"
+  val := input[i].Value
+  contains(val[_], denylist[_])
+
+  msg = sprintf("unallowed commands found %s", [val])
+}
+```
+
+The Dockerfile:
+```Dockerfile
+FROM ubuntu
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go
+COPY app.go .
+RUN go build app.go
+CMD ["./app"]
+```
+
+Running the test:
+```shell
+$ docker run --rm -v $(pwd):/project openpolicyagent/conftest test Dockerfile --all-namespaces
+```
+
+# Image Vulnerability Scanning
+
+Webservers or other applications can contain vulnerabilities (i.e. Buffer Overflows).
+
+Targets:
+- Remotely accessible apps in containers
+- Local apps within containers
+
+Unwanted Results:
+- Privilege Escalation
+- Information Leaks
+- DDoS
+
+Since container images are built in layers, the source of application vulnerabilites could lie in any of the layers that comprise the container image. Any container image scanning utility should have the ability to scan through all of the layers of a container image when searching for vulnerabilities. 
+
+## Image Vulnerability Databases
+- https://cve.mitre.org
+- https://nvd.nist.gov
+
+## Discovering vulnerabilites in your own images
+- Scanning Dockerfiles before the build process
+- Perform scanning during the image build process
+- Perform scanning at runtime
+- Restrict unapproved registries/images using PSP or OPA using Mutating Webhooks or Validating Webhooks
+- Perform constant scanning on all images stored in Container Registries
+
+
+[Clair](https://github.com/quay/clair)is an open source project for the [static analysis](https://en.wikipedia.org/wiki/Static_program_analysis) of vulnerabilities in application containers (currently including [OCI](https://github.com/opencontainers/image-spec/blob/master/spec.md) and [docker](https://github.com/docker/docker/blob/master/image/spec/v1.2.md)). Clair ingests vulnerability metadata from a configured set of sources to check images against and provides an API to program automation against. Can ne complicated to configure out-of-the-box.
+
+[Trivy](https://github.com/aquasecurity/trivy) is a simple and comprehensive vulnerability scanner for containers and other artifacts suitable for Continuous Integration. Trivy is known to be a simple, easy, and fast tool for vulnerability scanning.
+
+## Scanning images with Trivy
+Using the binary:
+```shell
+$ trivy image python:3.4-alpine
+```
+
+Using the Docker container: 
+```shell
+$ docker run ghcr.io/aquasecurity/trivy:latest image nginx
+```
+
+# Secure Supply Chain
+
+## Private Container Registries
+
+Using the `docker login` command allows you to give the docker daemon the necessary credentials to authenticate to private registries
+```shell
+$ docker login
+$ docker pull wuestcamp/cks-hello-world
+```
+
+The same can be achieved in Kubernetes as well using the `docker-registry` `Secret` type
+```shell
+$ kubectl create secret docker-registry my-private-registry \
+--docker-server=my-private-registry-server \
+--docker-username=username \
+--docker-password=password \
+--docker-email=email
+
+secret/my-private-registry created
+```
+
+The `ServiceAccount` that will use these credentials must also be granted access to the `docker-registry` `Secret` using the `imagePullSecrets` field.
+
+```shell
+$ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "my-private-registry"}]}'
+
+serviceaccount/default patched
+```
+
+Using a Container Image's digest is the most accurate way to verify a Container Image. The Container Image's tag can be changed or modified but the digest is a sha256 hash of the container image and cannot be easily replicated. The Container Image Digest can be found in the `status.containerStatuses[].imageID` field of a running pod's manifest (`kubectl get po <pod-name> -n <namespace>`). The image digest can be used in place of the image tag to ensure a pod is using the exact desired image.
+
+## Specifying an Image using Tags vs. Digests 
+
+Image Tag:
+```yaml
+...
+spec:
+  containers:
+  - image: registry.k8s.io/kube-apiserver:v1.26.2
+...
+```
+
+Image Digest:
+```yaml
+...
+spec:
+  containers:
+  - image: registry.k8s.io/kube-apiserver@sha256:0f03b93af45f39704b7da175db31e20da63d2ab369f350e59de8cbbef9d703e0
+...
+```
+
+## Allowlisting Image Registries using OPA Gatekeeper
+
+The following `ConstraintTemplate` returns a violation for containers whose images are not coming from either `docker.io` or `k8s-gcr.io`.
+```yaml
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8strustedimages
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sTrustedImages
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8strustedimages
+
+        violation[{"msg": msg}] {
+          image := input.review.object.spec.containers[_].image
+          not startswith(image, "docker.io/")
+          not startswith(image, "k8s.gcr.io/")
+          msg := "not trusted image!"
+        }
+```
+
+The Constraint Custom Resource `K8sTrustedImages` applies the rules set in the aformentioned `ConstraintTemplate` to all `Pod` resources in the cluster.
+```yaml
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sTrustedImages
+metadata:
+  name: pod-trusted-images
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+```
+
+## `ImagePolicyWebhook` Admission Controller 
+
+The `ImagePolicyWebhook` admission controller works by contacting an external service before the creation of a new pod. The admission controller sends an object of kind `ImageReview` to the external service and will allow or deny the creation of the new pod based on if the `ImageReview` is approved or denied at the external service.
+
+"ImagePolicyWebhook uses a configuration file to set options for the behavior of the backend. This file may be json or yaml and has the following format:
+
+```yaml
+piVersion: apiserver.config.k8s.io/v1
+kind: AdmissionConfiguration
+plugins:
+  - name: ImagePolicyWebhook
+    configuration:
+      imagePolicy:
+        kubeConfigFile: <path-to-kubeconfig-file>
+        allowTTL: 50
+        denyTTL: 50
+        retryBackoff: 500
+        defaultAllow: true
+```
+
+Reference the ImagePolicyWebhook configuration file from the file provided to the API server's command line flag `--admission-control-config-file`
+
+The ImagePolicyWebhook config file must reference a [kubeconfig](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/) formatted file which sets up the connection to the backend. It is required that the backend communicate over TLS.
+
+The kubeconfig file's `cluster` field must point to the remote service, and the `user` field must contain the returned authorizer." - https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
+
+```yaml
+# clusters refers to the remote service.
+clusters:
+  - name: name-of-remote-imagepolicy-service
+    cluster:
+      certificate-authority: /path/to/ca.pem    # CA for verifying the remote service.
+      server: https://images.example.com/policy # URL of remote service to query. Must use 'https'.
+
+# users refers to the API server's webhook configuration.
+users:
+  - name: name-of-api-server
+    user:
+      client-certificate: /path/to/cert.pem # cert for the webhook admission controller to use
+      client-key: /path/to/key.pem          # key matching the cert
+```
+
+
+# Behavioral Analytics
